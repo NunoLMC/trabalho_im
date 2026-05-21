@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- caminho para guardar as fotos dos objetos no armazenamento interno da app -->
+    <files-path name="imagens_objetos" path="." />
+</paths>
