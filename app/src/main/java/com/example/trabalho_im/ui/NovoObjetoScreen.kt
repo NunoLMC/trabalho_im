@@ -11,7 +11,10 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.Icons
+import coil.compose.AsyncImage
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.LocationOn
@@ -55,13 +58,21 @@ fun NovoObjetoScreen(
 
     // --- Câmara ---
 
+    // pathPendente guarda o caminho do ficheiro enquanto a câmara está aberta
+    var pathPendente by remember { mutableStateOf("") }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { guardou -> if (!guardou) fotoPath = "" }
+    ) { guardou ->
+        if (guardou && pathPendente.isNotBlank()) {
+            fotoPath = pathPendente  // só atualiza se a foto foi mesmo tirada
+        }
+        pathPendente = ""
+    }
 
     fun criarUriFoto(): Uri {
         val ficheiro = File(context.filesDir, "obj_${System.currentTimeMillis()}.jpg")
-        fotoPath = ficheiro.absolutePath
+        pathPendente = ficheiro.absolutePath  // guarda o caminho mas NÃO toca em fotoPath
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", ficheiro)
     }
 
@@ -208,7 +219,16 @@ fun NovoObjetoScreen(
                 )
             }
 
-            if (fotoPath.isNotBlank()) {
+            // Ficha 2: pré-visualização da foto tirada, usando Coil (AsyncImage)
+            if (fotoPath.isNotBlank() && File(fotoPath).exists()) {
+                AsyncImage(
+                    model = File(fotoPath),
+                    contentDescription = "Pré-visualização da foto",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
+                )
                 Text("Fotografia guardada", color = MaterialTheme.colorScheme.primary)
             }
 

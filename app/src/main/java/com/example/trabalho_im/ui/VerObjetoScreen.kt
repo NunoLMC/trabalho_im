@@ -10,6 +10,8 @@ import android.location.LocationManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -22,10 +24,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,16 +76,26 @@ fun VerObjetoScreen(
     var localizacao by remember(objeto) { mutableStateOf(objeto.localizacao) }
     var localizacaoMapa by remember(objeto) { mutableStateOf(objeto.localizacaoMapa) }
     var fotoPath by remember(objeto) { mutableStateOf(objeto.fotoPath) }
+    var mostrarFotoCompleta by remember { mutableStateOf(false) }
 
     // --- Câmara ---
 
+    // pathPendente guarda o caminho do novo ficheiro enquanto a câmara está aberta
+    // só é copiado para fotoPath se a câmara confirmar que guardou (guardou == true)
+    var pathPendente by remember { mutableStateOf("") }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { guardou -> if (!guardou) fotoPath = objeto.fotoPath }
+    ) { guardou ->
+        if (guardou && pathPendente.isNotBlank()) {
+            fotoPath = pathPendente  // só atualiza quando a foto foi mesmo tirada
+        }
+        pathPendente = ""
+    }
 
     fun criarUriFoto(): Uri {
         val ficheiro = File(context.filesDir, "obj_${System.currentTimeMillis()}.jpg")
-        fotoPath = ficheiro.absolutePath
+        pathPendente = ficheiro.absolutePath  // guarda o caminho mas NÃO toca em fotoPath
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", ficheiro)
     }
 
@@ -224,14 +239,15 @@ fun VerObjetoScreen(
             }
 
             // --- Fotografia ---
-            // Ficha 2: mostrar a foto com AsyncImage da biblioteca Coil
+            // Ficha 2: mostrar a foto com AsyncImage — clicável para ver em ecrã completo
             if (fotoPath.isNotBlank() && File(fotoPath).exists()) {
                 AsyncImage(
                     model = File(fotoPath),
                     contentDescription = "Foto do objeto",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp),
+                        .height(180.dp)
+                        .clickable { mostrarFotoCompleta = true },
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -296,6 +312,29 @@ fun VerObjetoScreen(
                 )
             ) {
                 Text("Remover")
+            }
+        }
+    }
+
+    // Ficha 2: foto em ecrã completo — toca em qualquer sítio para fechar
+    if (mostrarFotoCompleta && fotoPath.isNotBlank() && File(fotoPath).exists()) {
+        Dialog(
+            onDismissRequest = { mostrarFotoCompleta = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .clickable { mostrarFotoCompleta = false },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = File(fotoPath),
+                    contentDescription = "Foto em ecrã completo",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
             }
         }
     }
