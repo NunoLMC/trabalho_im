@@ -55,6 +55,9 @@ dependencies {
     // Ficha 3 - navegação entre ecrãs com NavHost
     implementation(libs.androidx.navigation.compose)
 
+    // Animações de transição entre ecrãs (slideIntoContainer, etc.)
+    implementation(libs.androidx.compose.animation)
+
     // Fichas 9 e 10 - base de dados Room (SQLite)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

@@ -42,6 +42,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 # Ficha 10 - ViewModel com Compose
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 
+# Animações de transição entre ecrãs
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
+
 # Ficha 2 - mostrar imagens com Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 

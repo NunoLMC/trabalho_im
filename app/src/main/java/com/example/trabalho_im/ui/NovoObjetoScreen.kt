@@ -11,6 +11,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.Icons
@@ -153,7 +155,8 @@ fun NovoObjetoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // --- Nome ---
@@ -232,7 +235,7 @@ fun NovoObjetoScreen(
                 Text("Fotografia guardada", color = MaterialTheme.colorScheme.primary)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Ficha 9: guardar o objeto — exige nome e pelo menos um dos campos de localização
             Button(

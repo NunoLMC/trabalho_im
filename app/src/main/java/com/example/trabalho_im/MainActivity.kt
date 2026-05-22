@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,9 +33,16 @@ class MainActivity : ComponentActivity() {
                 val viewModel: ObjetoViewModel = viewModel()
 
                 // Ficha 3: NavHost define as rotas de navegação entre ecrãs
+                // Ficha 7: animações de transição suaves entre ecrãs (fade)
                 NavHost(
                     navController = navController,
-                    startDestination = "home"
+                    startDestination = "home",
+                    // Avançar: nova tela entra da direita, atual sai para a esquerda
+                    enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+                    exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+                    // Voltar atrás: tela anterior entra da esquerda, atual sai para a direita
+                    popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) },
+                    popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) }
                 ) {
                     composable("home") {
                         HomeScreen(navController = navController, viewModel = viewModel)
